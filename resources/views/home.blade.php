@@ -4,46 +4,145 @@
 
 @section('content')
 
-<!-- Hero Section -->
-<section class="py-24 bg-gradient-to-r from-green-700 to-green-500 text-white">
-    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+@php
+    $profile = $profile ?? null;
+    $latestPosts = $latestPosts ?? collect();
+    $latestUmkms = $latestUmkms ?? collect();
+
+    $mediaUrl = function ($path) {
+        if (is_array($path)) {
+            $path = reset($path);
+        }
+
+        if (empty($path)) {
+            return null;
+        }
+
+        $path = trim(str_replace('\\', '/', $path));
+        $path = ltrim($path, '/');
+
+        if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($path, 'storage/')) {
+            return asset($path);
+        }
+
+        if (\Illuminate\Support\Str::startsWith($path, 'public/')) {
+            $path = substr($path, strlen('public/'));
+        }
+
+        return asset('storage/' . $path);
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | FOTO HERO HOME
+    |--------------------------------------------------------------------------
+    | Bagian ini mengambil foto peta dari data Profil Dusun.
+    | Kalau nama kolom peta di database berbeda, tinggal tambahkan di bawah.
+    */
+
+    $mapImagePath =
+        $profile?->map_image
+        ?? $profile?->map_photo
+        ?? $profile?->peta_image
+        ?? $profile?->peta_dusun_image
+        ?? $profile?->foto_peta_dusun
+        ?? $profile?->gambar_peta_dusun
+        ?? $profile?->map
+        ?? $profile?->map_picture
+        ?? $profile?->village_map
+        ?? null;
+
+    $heroImageUrl = $mediaUrl($mapImagePath);
+
+    $googleMapsUrl =
+        $profile?->map_link
+        ?? $profile?->google_maps_link
+        ?? $profile?->peta_dusun_link
+        ?? $profile?->link_google_maps
+        ?? $profile?->google_map_url
+        ?? null;
+@endphp
+
+{{-- HERO SECTION --}}
+<section class="py-24 bg-gradient-to-r from-green-800 via-green-700 to-green-500 text-white">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+
+        {{-- Hero Text --}}
         <div>
+            <p class="uppercase tracking-wider text-green-100 font-semibold mb-4">
+                Website Informasi Dusun
+            </p>
+
             <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
                 Membangun Identitas Digital Dusun Slegrengan Kulon
             </h1>
 
             <p class="text-lg mb-8 text-green-50 leading-relaxed">
                 Website ini hadir sebagai media informasi, promosi potensi dusun,
-                dokumentasi kegiatan masyarakat, serta wadah pemasaran produk UMKM lokal
-                agar Dusun Slegrengan Kulon semakin dikenal luas.
+                dokumentasi kegiatan masyarakat, serta wadah pemasaran produk UMKM
+                lokal agar Dusun Slegrengan Kulon semakin dikenal luas.
             </p>
 
             <div class="flex flex-wrap gap-4">
-                <a href="/profil-dusun" class="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">
+                <a
+                    href="{{ url('/profil-dusun') }}"
+                    class="bg-white text-green-700 px-7 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+                >
                     Lihat Profil Dusun
                 </a>
 
-                <a href="/umkm" class="border border-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-green-700">
+                <a
+                    href="{{ url('/umkm') }}"
+                    class="border border-white px-7 py-3 rounded-lg font-semibold hover:bg-white hover:text-green-700 transition"
+                >
                     Jelajahi UMKM
                 </a>
             </div>
         </div>
 
-        <div class="bg-white/20 rounded-2xl p-6 text-center">
-            <div class="h-72 bg-white/30 rounded-xl flex items-center justify-center">
-                <p class="text-white font-semibold">
-                    Foto Dusun / Banner Utama
-                </p>
+        {{-- Hero Image: Foto Peta Dusun --}}
+        <div class="bg-white/20 rounded-2xl p-6 text-center shadow-lg">
+            <div class="h-80 bg-white/30 rounded-xl flex items-center justify-center overflow-hidden">
+                @if ($heroImageUrl)
+                    @if ($googleMapsUrl)
+                        <a href="{{ $googleMapsUrl }}" target="_blank" class="w-full h-full block">
+                            <img
+                                src="{{ $heroImageUrl }}"
+                                alt="Peta Dusun Slegrengan Kulon"
+                                class="w-full h-full object-cover"
+                            >
+                        </a>
+                    @else
+                        <img
+                            src="{{ $heroImageUrl }}"
+                            alt="Peta Dusun Slegrengan Kulon"
+                            class="w-full h-full object-cover"
+                        >
+                    @endif
+                @else
+                    <div class="text-white font-semibold">
+                        Foto Peta Dusun Belum Diisi
+                    </div>
+                @endif
             </div>
+
+            <p class="text-green-50 text-sm mt-4">
+                Peta wilayah Dusun Slegrengan Kulon
+            </p>
         </div>
+
     </div>
 </section>
 
-<!-- Fitur Utama -->
+{{-- FITUR UTAMA --}}
 <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-14">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
                 Fitur Utama Website Dusun
             </h2>
 
@@ -53,204 +152,251 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
-            <a href="/profil-dusun" class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition block">
+            <a href="{{ url('/profil-dusun') }}" class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition block">
                 <div class="text-4xl mb-4">🏡</div>
-                <h3 class="text-xl font-bold mb-3 text-green-700">Profil Dusun</h3>
-                <p class="text-gray-600">
-                    Menampilkan sejarah, visi misi, potensi, struktur pengurus, dan identitas Dusun Slegrengan Kulon.
+                <h3 class="text-xl font-bold mb-3 text-green-700">
+                    Profil Dusun
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Menampilkan profil, pengurus, peta wilayah, serta identitas Dusun Slegrengan Kulon.
                 </p>
             </a>
 
-            <a href="/berita" class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition block">
+            <a href="{{ url('/berita') }}" class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition block">
                 <div class="text-4xl mb-4">📰</div>
-                <h3 class="text-xl font-bold mb-3 text-green-700">Berita & Kegiatan</h3>
-                <p class="text-gray-600">
-                    Mendokumentasikan kegiatan warga, pengumuman, acara dusun, gotong royong, dan program masyarakat.
+                <h3 class="text-xl font-bold mb-3 text-green-700">
+                    Berita & Kegiatan
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Mendokumentasikan kegiatan warga, pengumuman, acara dusun, dan program masyarakat.
                 </p>
             </a>
 
-            <a href="/umkm" class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition block">
+            <a href="{{ url('/umkm') }}" class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition block">
                 <div class="text-4xl mb-4">🛍️</div>
-                <h3 class="text-xl font-bold mb-3 text-green-700">Marketplace UMKM</h3>
-                <p class="text-gray-600">
-                    Membantu pelaku UMKM lokal mempromosikan produk agar lebih mudah dikenal dan dijangkau pembeli.
+                <h3 class="text-xl font-bold mb-3 text-green-700">
+                    Marketplace UMKM
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Membantu pelaku UMKM lokal mempromosikan produk agar lebih mudah dikenal masyarakat.
                 </p>
             </a>
         </div>
     </div>
 </section>
 
-<!-- Berita Terbaru -->
+{{-- BERITA TERBARU --}}
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
             <div>
-                <h2 class="text-3xl font-bold text-gray-800">Berita Terbaru</h2>
-                <p class="text-gray-600">Informasi kegiatan terbaru dari Dusun Slegrengan Kulon.</p>
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Berita Terbaru
+                </h2>
+                <p class="text-gray-600">
+                    Informasi kegiatan terbaru dari Dusun Slegrengan Kulon.
+                </p>
             </div>
 
-            <a href="/berita" class="text-green-700 font-semibold hover:underline">
-                Lihat Semua
+            <a href="{{ url('/berita') }}" class="text-green-700 font-semibold hover:underline">
+                Lihat Semua →
             </a>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
-            <!-- Berita 1 -->
-            <article class="bg-gray-50 rounded-2xl overflow-hidden shadow hover:shadow-lg transition">
-                <div class="h-48 bg-green-200 flex items-center justify-center">
-                    Foto Kegiatan
-                </div>
+        @if ($latestPosts->count() > 0)
+            <div class="grid md:grid-cols-3 gap-8">
+                @foreach ($latestPosts as $post)
+                    @php
+                        $thumbnailUrl = $mediaUrl($post->thumbnail);
+                        $description = $post->meta_description;
 
-                <div class="p-6">
-                    <p class="text-sm text-gray-500 mb-2">6 Juli 2026</p>
+                        if (!$description && is_array($post->content)) {
+                            foreach ($post->content as $block) {
+                                if (($block['type'] ?? null) === 'paragraph') {
+                                    $description =
+                                        $block['data']['content']
+                                        ?? $block['content']
+                                        ?? '';
 
-                    <h3 class="text-lg font-bold mb-3 text-gray-900 hover:text-green-700">
-                        <a href="/berita/kegiatan-gotong-royong-warga-dusun-slegrengan-kulon">
-                            Kegiatan Gotong Royong Warga
+                                    $description = strip_tags($description);
+                                    break;
+                                }
+                            }
+                        }
+                    @endphp
+
+                    <article class="bg-gray-50 rounded-2xl overflow-hidden shadow hover:shadow-lg transition">
+                        <a href="{{ url('/berita/' . $post->slug) }}">
+                            <div class="h-48 bg-green-100 flex items-center justify-center overflow-hidden">
+                                @if ($thumbnailUrl)
+                                    <img
+                                        src="{{ $thumbnailUrl }}"
+                                        alt="{{ $post->title }}"
+                                        class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                                    >
+                                @else
+                                    <span class="text-green-700 font-semibold">
+                                        Foto Kegiatan
+                                    </span>
+                                @endif
+                            </div>
                         </a>
-                    </h3>
 
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Warga dusun bersama-sama melaksanakan kegiatan gotong royong untuk menjaga kebersihan lingkungan.
-                    </p>
+                        <div class="p-6">
+                            <p class="text-sm text-gray-500 mb-2">
+                                {{ optional($post->published_at)->translatedFormat('d F Y') ?? $post->created_at->translatedFormat('d F Y') }}
+                            </p>
 
-                    <a href="/berita/kegiatan-gotong-royong-warga-dusun-slegrengan-kulon" class="inline-block mt-4 text-green-700 font-semibold text-sm hover:underline">
-                        Baca Selengkapnya →
-                    </a>
-                </div>
-            </article>
+                            <h3 class="text-lg font-bold mb-3 text-gray-900 hover:text-green-700 line-clamp-2">
+                                <a href="{{ url('/berita/' . $post->slug) }}">
+                                    {{ $post->title }}
+                                </a>
+                            </h3>
 
-            <!-- Berita 2 -->
-            <article class="bg-gray-50 rounded-2xl overflow-hidden shadow hover:shadow-lg transition">
-                <div class="h-48 bg-green-200 flex items-center justify-center">
-                    Foto Kegiatan
-                </div>
+                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                                {{ \Illuminate\Support\Str::limit($description ?? 'Belum ada ringkasan berita.', 120) }}
+                            </p>
 
-                <div class="p-6">
-                    <p class="text-sm text-gray-500 mb-2">6 Juli 2026</p>
-
-                    <h3 class="text-lg font-bold mb-3 text-gray-900 hover:text-green-700">
-                        <a href="/berita/pelatihan-pemasaran-digital-untuk-pelaku-umkm-lokal">
-                            Pelatihan UMKM Lokal
-                        </a>
-                    </h3>
-
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Pelaku UMKM mengikuti pelatihan pemasaran digital untuk meningkatkan daya saing produk lokal.
-                    </p>
-
-                    <a href="/berita/pelatihan-pemasaran-digital-untuk-pelaku-umkm-lokal" class="inline-block mt-4 text-green-700 font-semibold text-sm hover:underline">
-                        Baca Selengkapnya →
-                    </a>
-                </div>
-            </article>
-
-            <!-- Berita 3 -->
-            <article class="bg-gray-50 rounded-2xl overflow-hidden shadow hover:shadow-lg transition">
-                <div class="h-48 bg-green-200 flex items-center justify-center">
-                    Foto Kegiatan
-                </div>
-
-                <div class="p-6">
-                    <p class="text-sm text-gray-500 mb-2">6 Juli 2026</p>
-
-                    <h3 class="text-lg font-bold mb-3 text-gray-900 hover:text-green-700">
-                        <a href="/berita/peran-pemuda-dalam-membangun-branding-dusun">
-                            Kegiatan Pemuda Dusun
-                        </a>
-                    </h3>
-
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Pemuda dusun berperan aktif dalam kegiatan sosial dan pengembangan potensi masyarakat.
-                    </p>
-
-                    <a href="/berita/peran-pemuda-dalam-membangun-branding-dusun" class="inline-block mt-4 text-green-700 font-semibold text-sm hover:underline">
-                        Baca Selengkapnya →
-                    </a>
-                </div>
-            </article>
-        </div>
+                            <a
+                                href="{{ url('/berita/' . $post->slug) }}"
+                                class="inline-block mt-4 text-green-700 font-semibold text-sm hover:underline"
+                            >
+                                Baca Selengkapnya →
+                            </a>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @else
+            <div class="bg-gray-50 border rounded-2xl p-10 text-center">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    Belum ada berita terbaru
+                </h3>
+                <p class="text-gray-600">
+                    Berita akan muncul setelah admin menambahkan post dan mengaktifkan visibility.
+                </p>
+            </div>
+        @endif
     </div>
 </section>
 
-<!-- UMKM -->
+{{-- UMKM TERBARU --}}
 <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-14">
-            <h2 class="text-3xl font-bold text-gray-800">Produk UMKM Lokal</h2>
+            <h2 class="text-3xl font-bold text-gray-900">
+                Produk UMKM Lokal
+            </h2>
             <p class="text-gray-600">
                 Dukung produk lokal masyarakat Dusun Slegrengan Kulon.
             </p>
         </div>
 
-        <div class="grid md:grid-cols-4 gap-8">
-            <!-- Produk 1 -->
-            <div class="bg-white rounded-2xl shadow overflow-hidden hover:shadow-lg transition">
-                <div class="h-40 bg-yellow-200 flex items-center justify-center">
-                    Foto Produk
-                </div>
+        @if ($latestUmkms->count() > 0)
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                @foreach ($latestUmkms as $umkm)
+                    @php
+                        $imageUrl = $mediaUrl($umkm->image);
 
-                <div class="p-5">
-                    <h3 class="font-bold text-lg">Produk UMKM 1</h3>
-                    <p class="text-green-700 font-semibold mt-2">Rp 10.000</p>
+                        $waNumber = preg_replace('/[^0-9]/', '', $umkm->whatsapp_number ?? '');
 
-                    <a href="#" class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800">
-                        Pesan via WhatsApp
-                    </a>
-                </div>
+                        if (!empty($waNumber) && \Illuminate\Support\Str::startsWith($waNumber, '0')) {
+                            $waNumber = '62' . substr($waNumber, 1);
+                        }
+
+                        $waText = 'Halo, saya tertarik dengan produk ' . $umkm->business_name;
+
+                        $waUrl = $waNumber
+                            ? 'https://wa.me/' . $waNumber . '?text=' . urlencode($waText)
+                            : null;
+                    @endphp
+
+                    <div class="bg-white rounded-2xl shadow overflow-hidden hover:shadow-lg transition">
+                        <div class="h-44 bg-yellow-100 flex items-center justify-center overflow-hidden">
+                            @if ($imageUrl)
+                                <img
+                                    src="{{ $imageUrl }}"
+                                    alt="{{ $umkm->business_name }}"
+                                    class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                                >
+                            @else
+                                <span class="text-yellow-800 font-semibold">
+                                    Foto Produk
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="p-5">
+                            <div class="flex justify-between items-start gap-2 mb-3">
+                                <span class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-semibold">
+                                    {{ $umkm->category->name ?? 'UMKM' }}
+                                </span>
+
+                                <span class="text-xs text-gray-500">
+                                    {{ $umkm->status === 'active' ? 'Aktif' : 'Tidak Aktif' }}
+                                </span>
+                            </div>
+
+                            <h3 class="font-bold text-lg text-gray-900 line-clamp-2">
+                                {{ $umkm->business_name }}
+                            </h3>
+
+                            @if (!empty($umkm->owner_name))
+                                <p class="text-sm text-gray-500 mt-1">
+                                    {{ $umkm->owner_name }}
+                                </p>
+                            @endif
+
+                            @if (!empty($umkm->price))
+                                <p class="text-green-700 font-semibold mt-3">
+                                    Rp {{ number_format($umkm->price, 0, ',', '.') }}
+                                </p>
+                            @endif
+
+                            @if ($waUrl)
+                                <a
+                                    href="{{ $waUrl }}"
+                                    target="_blank"
+                                    class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800 transition"
+                                >
+                                    Pesan via WhatsApp
+                                </a>
+                            @elseif (!empty($umkm->link))
+                                <a
+                                    href="{{ $umkm->link }}"
+                                    target="_blank"
+                                    class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800 transition"
+                                >
+                                    Lihat Produk
+                                </a>
+                            @else
+                                <a
+                                    href="{{ url('/umkm') }}"
+                                    class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800 transition"
+                                >
+                                    Lihat Detail
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
             </div>
-
-            <!-- Produk 2 -->
-            <div class="bg-white rounded-2xl shadow overflow-hidden hover:shadow-lg transition">
-                <div class="h-40 bg-yellow-200 flex items-center justify-center">
-                    Foto Produk
-                </div>
-
-                <div class="p-5">
-                    <h3 class="font-bold text-lg">Produk UMKM 2</h3>
-                    <p class="text-green-700 font-semibold mt-2">Rp 15.000</p>
-
-                    <a href="#" class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800">
-                        Pesan via WhatsApp
-                    </a>
-                </div>
+        @else
+            <div class="bg-white border rounded-2xl p-10 text-center">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    Belum ada produk UMKM
+                </h3>
+                <p class="text-gray-600">
+                    Produk akan muncul setelah admin menambahkan data UMKM dan mengaktifkan visibility.
+                </p>
             </div>
-
-            <!-- Produk 3 -->
-            <div class="bg-white rounded-2xl shadow overflow-hidden hover:shadow-lg transition">
-                <div class="h-40 bg-yellow-200 flex items-center justify-center">
-                    Foto Produk
-                </div>
-
-                <div class="p-5">
-                    <h3 class="font-bold text-lg">Produk UMKM 3</h3>
-                    <p class="text-green-700 font-semibold mt-2">Rp 20.000</p>
-
-                    <a href="#" class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800">
-                        Pesan via WhatsApp
-                    </a>
-                </div>
-            </div>
-
-            <!-- Produk 4 -->
-            <div class="bg-white rounded-2xl shadow overflow-hidden hover:shadow-lg transition">
-                <div class="h-40 bg-yellow-200 flex items-center justify-center">
-                    Foto Produk
-                </div>
-
-                <div class="p-5">
-                    <h3 class="font-bold text-lg">Produk UMKM 4</h3>
-                    <p class="text-green-700 font-semibold mt-2">Rp 25.000</p>
-
-                    <a href="#" class="block mt-4 bg-green-700 text-white text-center py-2 rounded-lg hover:bg-green-800">
-                        Pesan via WhatsApp
-                    </a>
-                </div>
-            </div>
-        </div>
+        @endif
 
         <div class="text-center mt-10">
-            <a href="/umkm" class="inline-block bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800">
+            <a
+                href="{{ url('/umkm') }}"
+                class="inline-block bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition"
+            >
                 Lihat Semua Produk UMKM
             </a>
         </div>

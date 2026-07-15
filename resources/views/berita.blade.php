@@ -24,7 +24,6 @@
 
 <!-- Content Wrapper -->
 <section class="max-w-7xl mx-auto px-6 -mt-16 relative z-20 mb-20">
-
     <div class="bg-white rounded-2xl shadow-lg p-8 md:p-10">
 
         <!-- Breadcrumb -->
@@ -53,171 +52,169 @@
 
                 <!-- Filter dan Sorting -->
                 <div class="border-y py-4 mb-8 flex flex-col md:flex-row justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <button class="text-gray-500 hover:text-red-600 text-xl">
-                            ×
-                        </button>
+                    <div class="flex flex-wrap items-center gap-3">
+                        @if (!empty($categorySlug))
+                            <a href="{{ route('berita.index') }}" class="text-gray-500 hover:text-red-600 text-xl">
+                                ×
+                            </a>
+                        @endif
 
-                        <span class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium">
-                            Kegiatan Dusun
-                        </span>
+                        <a
+                            href="{{ route('berita.index') }}"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition
+                            {{ empty($categorySlug) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700' }}"
+                        >
+                            Semua Berita
+                        </a>
+
+                        @foreach ($categories as $category)
+                            <a
+                                href="{{ route('berita.index', ['category' => $category->slug]) }}"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition
+                                {{ ($categorySlug ?? '') === $category->slug ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700' }}"
+                            >
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
                     </div>
 
                     <div class="flex gap-6 text-sm font-medium">
-                        <a href="#" class="text-green-700 border-b-2 border-green-700 pb-2">
+                        <a
+                            href="{{ route('berita.index', array_merge(request()->except('sort'), ['sort' => 'latest'])) }}"
+                            class="{{ ($sort ?? 'latest') === 'latest' ? 'text-green-700 border-b-2 border-green-700 pb-2' : 'text-gray-600 hover:text-green-700 pb-2' }}"
+                        >
                             Latest
                         </a>
 
-                        <a href="#" class="text-gray-600 hover:text-green-700 pb-2">
+                        <a
+                            href="{{ route('berita.index', array_merge(request()->except('sort'), ['sort' => 'oldest'])) }}"
+                            class="{{ ($sort ?? '') === 'oldest' ? 'text-green-700 border-b-2 border-green-700 pb-2' : 'text-gray-600 hover:text-green-700 pb-2' }}"
+                        >
                             Oldest
                         </a>
                     </div>
                 </div>
 
-                <!-- List Berita -->
-                <div class="space-y-8">
+                <!-- List Berita Dinamis -->
+                @if ($posts->count() > 0)
+                    <div class="space-y-8">
+                        @foreach ($posts as $post)
+                            @php
+                                $description = $post->meta_description;
 
-                    <!-- Card Berita 1 -->
-                    <article class="grid md:grid-cols-3 gap-6 border-b pb-8">
-                        <div class="h-48 md:h-40 bg-green-200 rounded-xl flex items-center justify-center overflow-hidden">
-                            <span class="text-green-800 font-semibold">Foto Kegiatan</span>
-                        </div>
+                                if (!$description && is_array($post->content)) {
+                                    foreach ($post->content as $block) {
+                                        if (($block['type'] ?? '') === 'paragraph') {
+                                            $description = strip_tags($block['data']['content'] ?? '');
+                                            break;
+                                        }
+                                    }
+                                }
 
-                        <div class="md:col-span-2">
-                            <p class="text-sm text-green-700 font-semibold uppercase mb-2">
-                                Kegiatan Dusun
-                            </p>
+                                $tags = is_array($post->tags) ? $post->tags : [];
+                            @endphp
 
-                            <a href="/berita/kegiatan-gotong-royong-warga-dusun-slegrengan-kulon">
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3 hover:text-green-700 cursor-pointer">
-                                    Kegiatan Gotong Royong Warga Dusun Slegrengan Kulon
-                                </h3>
-                            </a>
+                            <article class="grid md:grid-cols-3 gap-6 border-b pb-8">
+                                <a href="{{ route('berita.show', $post->slug) }}">
+                                    <div class="h-48 md:h-40 bg-green-200 rounded-xl flex items-center justify-center overflow-hidden">
+                                        @if ($post->thumbnail)
+                                            <img
+                                                src="{{ asset('storage/' . $post->thumbnail) }}"
+                                                alt="{{ $post->title }}"
+                                                class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                                            >
+                                        @else
+                                            <span class="text-green-800 font-semibold">
+                                                Foto Kegiatan
+                                            </span>
+                                        @endif
+                                    </div>
+                                </a>
 
-                            <p class="text-gray-600 leading-relaxed mb-4">
-                                Warga Dusun Slegrengan Kulon melaksanakan kegiatan gotong royong
-                                untuk membersihkan lingkungan, memperbaiki fasilitas umum, dan
-                                mempererat kebersamaan antarwarga.
-                            </p>
+                                <div class="md:col-span-2">
+                                    <p class="text-sm text-green-700 font-semibold uppercase mb-2">
+                                        {{ $post->category->name ?? 'Berita Dusun' }}
+                                    </p>
 
-                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                                <span>6 Juli 2026</span>
-                                <span>•</span>
-                                <span>2 min read</span>
-                            </div>
+                                    <a href="{{ route('berita.show', $post->slug) }}">
+                                        <h3 class="text-2xl font-bold text-gray-900 mb-3 hover:text-green-700 cursor-pointer">
+                                            {{ $post->title }}
+                                        </h3>
+                                    </a>
 
-                            <div class="flex flex-wrap gap-2 mt-4">
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#GotongRoyong</span>
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#KegiatanWarga</span>
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#DusunSlegrenganKulon</span>
-                            </div>
+                                    <p class="text-gray-600 leading-relaxed mb-4">
+                                        {{ \Illuminate\Support\Str::limit($description ?? 'Belum ada ringkasan berita.', 160) }}
+                                    </p>
 
-                            <a href="/berita/kegiatan-gotong-royong-warga-dusun-slegrengan-kulon"
-                               class="inline-block mt-5 text-green-700 font-semibold hover:underline">
-                                Baca Selengkapnya →
-                            </a>
-                        </div>
-                    </article>
+                                    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                                        <span>
+                                            {{ optional($post->published_at)->translatedFormat('d F Y') ?? $post->created_at->translatedFormat('d F Y') }}
+                                        </span>
+                                        <span>•</span>
+                                        <span>{{ $post->author_name ?? 'Admin Dusun' }}</span>
+                                    </div>
 
-                    <!-- Card Berita 2 -->
-                    <article class="grid md:grid-cols-3 gap-6 border-b pb-8">
-                        <div class="h-48 md:h-40 bg-yellow-200 rounded-xl flex items-center justify-center overflow-hidden">
-                            <span class="text-yellow-800 font-semibold">Foto UMKM</span>
-                        </div>
+                                    @if (count($tags) > 0)
+                                        <div class="flex flex-wrap gap-2 mt-4">
+                                            @foreach ($tags as $tag)
+                                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">
+                                                    #{{ ltrim($tag, '#') }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
 
-                        <div class="md:col-span-2">
-                            <p class="text-sm text-green-700 font-semibold uppercase mb-2">
-                                UMKM Dusun
-                            </p>
+                                    <a
+                                        href="{{ route('berita.show', $post->slug) }}"
+                                        class="inline-block mt-5 text-green-700 font-semibold hover:underline"
+                                    >
+                                        Baca Selengkapnya →
+                                    </a>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
 
-                            <a href="/berita/pelatihan-pemasaran-digital-untuk-pelaku-umkm-lokal">
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3 hover:text-green-700 cursor-pointer">
-                                    Pelatihan Pemasaran Digital untuk Pelaku UMKM Lokal
-                                </h3>
-                            </a>
-
-                            <p class="text-gray-600 leading-relaxed mb-4">
-                                Pelaku UMKM mendapatkan pendampingan mengenai pemanfaatan media digital
-                                untuk memperkenalkan produk lokal agar mampu menjangkau pasar yang lebih luas.
-                            </p>
-
-                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                                <span>6 Juli 2026</span>
-                                <span>•</span>
-                                <span>3 min read</span>
-                            </div>
-
-                            <div class="flex flex-wrap gap-2 mt-4">
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#UMKM</span>
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#ProdukLokal</span>
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#DigitalMarketing</span>
-                            </div>
-
-                            <a href="/berita/pelatihan-pemasaran-digital-untuk-pelaku-umkm-lokal"
-                               class="inline-block mt-5 text-green-700 font-semibold hover:underline">
-                                Baca Selengkapnya →
-                            </a>
-                        </div>
-                    </article>
-
-                    <!-- Card Berita 3 -->
-                    <article class="grid md:grid-cols-3 gap-6 border-b pb-8">
-                        <div class="h-48 md:h-40 bg-blue-200 rounded-xl flex items-center justify-center overflow-hidden">
-                            <span class="text-blue-800 font-semibold">Foto Pemuda</span>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <p class="text-sm text-green-700 font-semibold uppercase mb-2">
-                                Pemuda Dusun
-                            </p>
-
-                            <a href="/berita/peran-pemuda-dalam-membangun-branding-dusun">
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3 hover:text-green-700 cursor-pointer">
-                                    Peran Pemuda dalam Membangun Branding Dusun
-                                </h3>
-                            </a>
-
-                            <p class="text-gray-600 leading-relaxed mb-4">
-                                Pemuda dusun berperan aktif dalam dokumentasi kegiatan, pengelolaan media,
-                                serta pengembangan website sebagai identitas digital Dusun Slegrengan Kulon.
-                            </p>
-
-                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                                <span>6 Juli 2026</span>
-                                <span>•</span>
-                                <span>2 min read</span>
-                            </div>
-
-                            <div class="flex flex-wrap gap-2 mt-4">
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#PemudaDusun</span>
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#BrandingDusun</span>
-                                <span class="bg-gray-100 px-3 py-1 rounded-md text-sm">#WebsiteDesa</span>
-                            </div>
-
-                            <a href="/berita/peran-pemuda-dalam-membangun-branding-dusun"
-                               class="inline-block mt-5 text-green-700 font-semibold hover:underline">
-                                Baca Selengkapnya →
-                            </a>
-                        </div>
-                    </article>
-
-                </div>
+                    <!-- Pagination -->
+                    <div class="mt-10">
+                        {{ $posts->links() }}
+                    </div>
+                @else
+                    <div class="text-center py-16 bg-gray-50 border rounded-2xl">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">
+                            Belum ada berita
+                        </h3>
+                        <p class="text-gray-600">
+                            Berita akan tampil setelah admin menambahkan post dan mengaktifkan visibility.
+                        </p>
+                    </div>
+                @endif
             </div>
 
             <!-- Sidebar -->
             <aside class="space-y-6">
 
                 <!-- Search -->
-                <div class="bg-white border rounded-2xl p-5 shadow-sm">
+                <form action="{{ route('berita.index') }}" method="GET" class="bg-white border rounded-2xl p-5 shadow-sm">
+                    @if (!empty($categorySlug))
+                        <input type="hidden" name="category" value="{{ $categorySlug }}">
+                    @endif
+
+                    @if (!empty($sort))
+                        <input type="hidden" name="sort" value="{{ $sort }}">
+                    @endif
+
                     <div class="relative">
                         <input
                             type="text"
+                            name="search"
+                            value="{{ $search ?? '' }}"
                             placeholder="search"
                             class="w-full border rounded-xl py-3 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-green-600"
                         >
                         <span class="absolute left-3 top-3 text-gray-400">🔍</span>
                     </div>
-                </div>
+                </form>
 
                 <!-- Recommended Topics -->
                 <div class="bg-white border rounded-2xl p-5 shadow-sm">
@@ -229,21 +226,14 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                        <a href="#" class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm">
-                            Kegiatan Dusun
-                        </a>
-
-                        <a href="#" class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm">
-                            UMKM
-                        </a>
-
-                        <a href="#" class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm">
-                            Budaya
-                        </a>
-
-                        <a href="#" class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm">
-                            Pengumuman
-                        </a>
+                        @foreach ($categories as $category)
+                            <a
+                                href="{{ route('berita.index', ['category' => $category->slug]) }}"
+                                class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition"
+                            >
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
                     </div>
                 </div>
 
@@ -254,17 +244,14 @@
                     </h3>
 
                     <div class="space-y-4">
-                        <div class="h-24 rounded-xl bg-gradient-to-r from-green-700 to-green-400 flex items-center justify-center text-white font-bold">
-                            Kegiatan Dusun
-                        </div>
-
-                        <div class="h-24 rounded-xl bg-gradient-to-r from-yellow-600 to-yellow-300 flex items-center justify-center text-white font-bold">
-                            UMKM Lokal
-                        </div>
-
-                        <div class="h-24 rounded-xl bg-gradient-to-r from-blue-700 to-blue-400 flex items-center justify-center text-white font-bold">
-                            Pengumuman
-                        </div>
+                        @foreach ($categories as $category)
+                            <a
+                                href="{{ route('berita.index', ['category' => $category->slug]) }}"
+                                class="h-24 rounded-xl bg-gradient-to-r from-green-700 to-green-400 flex items-center justify-center text-white font-bold hover:opacity-90 transition"
+                            >
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
                     </div>
                 </div>
 
@@ -283,9 +270,7 @@
                         Hubungi Admin
                     </a>
                 </div>
-
             </aside>
-
         </div>
     </div>
 </section>

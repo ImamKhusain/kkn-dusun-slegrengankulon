@@ -13,6 +13,7 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -90,16 +91,6 @@ class PostForm
                                                     ])
                                                     ->columns(2),
 
-                                                Block::make('paragraph')
-                                                    ->label('Paragraph')
-                                                    ->icon('heroicon-o-bars-3-bottom-left')
-                                                    ->schema([
-                                                        RichEditor::make('content')
-                                                            ->label('Paragraph')
-                                                            ->required()
-                                                            ->columnSpanFull(),
-                                                    ]),
-
                                                 Block::make('image')
                                                     ->label('Image')
                                                     ->icon('heroicon-o-photo')
@@ -110,12 +101,25 @@ class PostForm
                                                             ->disk('public')
                                                             ->directory('posts/content')
                                                             ->visibility('public')
+                                                            ->imagePreviewHeight('260')
+                                                            ->panelAspectRatio('16:9')
+                                                            ->panelLayout('integrated')
                                                             ->required()
                                                             ->columnSpanFull(),
 
                                                         TextInput::make('alt')
                                                             ->label('Alt text')
                                                             ->maxLength(255)
+                                                            ->columnSpanFull(),
+                                                    ]),
+
+                                                Block::make('paragraph')
+                                                    ->label('Paragraph')
+                                                    ->icon('heroicon-o-bars-3-bottom-left')
+                                                    ->schema([
+                                                        RichEditor::make('content')
+                                                            ->label('Paragraph')
+                                                            ->required()
                                                             ->columnSpanFull(),
                                                     ]),
                                             ])
@@ -134,14 +138,18 @@ class PostForm
 
                 Section::make('Meta')
                     ->schema([
-                        Toggle::make('is_visible')
-                            ->label('Visibility')
-                            ->default(true)
-                            ->required(),
+                        Grid::make(2)
+                            ->schema([
+                                Toggle::make('is_visible')
+                                    ->label('Visibility')
+                                    ->default(true)
+                                    ->required(),
 
-                        Toggle::make('is_featured')
-                            ->label('Featured')
-                            ->default(false),
+                                Toggle::make('is_featured')
+                                    ->label('Featured')
+                                    ->default(false),
+                            ])
+                            ->columnSpanFull(),
 
                         FileUpload::make('thumbnail')
                             ->label('Thumbnail')
@@ -149,12 +157,17 @@ class PostForm
                             ->disk('public')
                             ->directory('posts/thumbnails')
                             ->visibility('public')
+                            ->imagePreviewHeight('220')
+                            ->panelAspectRatio('16:9')
+                            ->panelLayout('integrated')
+                            ->maxSize(2048)
                             ->required()
                             ->columnSpanFull(),
 
                         TagsInput::make('tags')
                             ->label('Tags')
                             ->placeholder('New tag')
+                            ->separator(',')
                             ->columnSpanFull(),
 
                         DateTimePicker::make('published_at')
@@ -162,6 +175,7 @@ class PostForm
                             ->default(now())
                             ->native(false)
                             ->seconds(false)
+                            ->required()
                             ->columnSpanFull(),
 
                         Textarea::make('meta_description')
