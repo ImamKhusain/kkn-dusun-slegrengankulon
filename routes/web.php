@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    $profile = VillageProfile::where('is_visible', true)
+        ->latest()
+        ->first();
+
     $latestPosts = Post::with('category')
         ->where('is_visible', true)
         ->where('status', 'published')
@@ -23,7 +27,11 @@ Route::get('/', function () {
         ->limit(4)
         ->get();
 
-    return view('home', compact('latestPosts', 'latestUmkms'));
+    return view('home', compact(
+        'profile',
+        'latestPosts',
+        'latestUmkms'
+    ));
 })->name('home');
 
 Route::get('/profil-dusun', function () {
@@ -32,7 +40,7 @@ Route::get('/profil-dusun', function () {
         ->first();
 
     return view('profil-dusun', compact('profile'));
-});
+})->name('profil-dusun');
 
 Route::get('/berita', function (Request $request) {
     $search = $request->query('search');
@@ -88,7 +96,10 @@ Route::get('/berita/{slug}', function ($slug) {
         ->limit(3)
         ->get();
 
-    return view('detail-berita', compact('post', 'latestPosts'));
+    return view('detail-berita', compact(
+        'post',
+        'latestPosts'
+    ));
 })->name('berita.show');
 
 Route::get('/umkm', function (Request $request) {

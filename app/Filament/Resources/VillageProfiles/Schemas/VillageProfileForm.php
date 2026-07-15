@@ -6,16 +6,16 @@ use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
 
 class VillageProfileForm
 {
@@ -43,212 +43,291 @@ class VillageProfileForm
 
                         Grid::make(1)
                             ->schema([
-                                Section::make()
+                                /*
+                                |--------------------------------------------------------------------------
+                                | PROFIL DUSUN
+                                |--------------------------------------------------------------------------
+                                */
+                                Group::make()
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'profil'",
                                         'x-cloak' => 'x-cloak',
                                     ])
                                     ->schema([
-                                        Tabs::make('Profil Dusun Tabs')
-                                            ->tabs([
-                                                Tab::make('Content')
-                                                    ->schema([
-                                                        Grid::make(2)
+                                        Section::make()
+                                            ->schema([
+                                                Tabs::make('Profil Dusun')
+                                                    ->tabs([
+                                                        Tab::make('Content')
                                                             ->schema([
-                                                                TextInput::make('title')
-                                                                    ->label('Title')
-                                                                    ->default('Profil Dusun')
-                                                                    ->required()
-                                                                    ->maxLength(255)
-                                                                    ->live(onBlur: true)
-                                                                    ->afterStateUpdated(function (Set $set, ?string $state): void {
-                                                                        $set('slug', Str::slug($state ?? ''));
-                                                                    }),
+                                                                Grid::make(2)
+                                                                    ->schema([
+                                                                        TextInput::make('title')
+                                                                            ->label('Title')
+                                                                            ->placeholder('Profil Dusun')
+                                                                            ->required()
+                                                                            ->maxLength(255),
 
-                                                                TextInput::make('slug')
-                                                                    ->label('Slug')
-                                                                    ->default('profil-dusun')
-                                                                    ->required()
-                                                                    ->unique(ignoreRecord: true)
-                                                                    ->maxLength(255),
+                                                                        TextInput::make('slug')
+                                                                            ->label('Slug')
+                                                                            ->placeholder('profil-dusun')
+                                                                            ->helperText('Isi manual. Contoh: profil-dusun')
+                                                                            ->required()
+                                                                            ->unique(ignoreRecord: true)
+                                                                            ->maxLength(255),
+                                                                    ]),
+
+                                                                FileUpload::make('photo')
+                                                                    ->label('Logo / Foto Dusun')
+                                                                    ->image()
+                                                                    ->disk('public')
+                                                                    ->directory('village-profile/profile')
+                                                                    ->visibility('public')
+                                                                    ->imagePreviewHeight('180')
+                                                                    ->columnSpanFull(),
+
+                                                                self::contentBuilder(
+                                                                    field: 'content',
+                                                                    directory: 'village-profile/profile/content'
+                                                                ),
                                                             ]),
 
-                                                        FileUpload::make('photo')
-                                                            ->label('Logo / Foto Dusun')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('village-profile')
-                                                            ->visibility('public')
-                                                            ->columnSpanFull(),
+                                                        Tab::make('Meta')
+                                                            ->schema([
+                                                                Toggle::make('is_visible')
+                                                                    ->label('Visibility')
+                                                                    ->default(true),
+                                                            ])
+                                                            ->columns(2),
+                                                    ])
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ])
+                                    ->columnSpanFull(),
 
-                                                        self::contentBuilder('content', 'village-profile/content'),
-                                                    ]),
-                                            ])
-                                            ->columnSpanFull(),
-                                    ]),
-
-                                Section::make()
+                                /*
+                                |--------------------------------------------------------------------------
+                                | KETUA DUSUN
+                                |--------------------------------------------------------------------------
+                                */
+                                Group::make()
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'ketua-dusun'",
                                         'x-cloak' => 'x-cloak',
                                     ])
                                     ->schema([
-                                        Tabs::make('Ketua Dusun Tabs')
-                                            ->tabs([
-                                                Tab::make('Content')
-                                                    ->schema([
-                                                        Grid::make(2)
+                                        Section::make()
+                                            ->schema([
+                                                Tabs::make('Ketua Dusun')
+                                                    ->tabs([
+                                                        Tab::make('Content')
                                                             ->schema([
-                                                                TextInput::make('head_name')
-                                                                    ->label('Title')
-                                                                    ->placeholder('Ketua Dusun'),
+                                                                Grid::make(2)
+                                                                    ->schema([
+                                                                        TextInput::make('head_name')
+                                                                            ->label('Title')
+                                                                            ->placeholder('Contoh: Bapak Udiyono')
+                                                                            ->maxLength(255),
 
-                                                                TextInput::make('head_slug')
-                                                                    ->label('Slug')
-                                                                    ->default('ketua-dusun')
-                                                                    ->disabled()
-                                                                    ->dehydrated(false),
+                                                                        TextInput::make('head_slug')
+                                                                            ->label('Slug')
+                                                                            ->placeholder('ketua-dusun')
+                                                                            ->helperText('Isi manual. Contoh: ketua-dusun')
+                                                                            ->maxLength(255),
+                                                                    ]),
+
+                                                                self::contentBuilder(
+                                                                    field: 'head_content',
+                                                                    directory: 'village-profile/ketua-dusun/content'
+                                                                ),
                                                             ]),
 
-                                                        FileUpload::make('head_photo')
-                                                            ->label('Foto Ketua Dusun')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('village-profile/ketua-dusun')
-                                                            ->visibility('public')
-                                                            ->columnSpanFull(),
+                                                        Tab::make('Meta')
+                                                            ->schema([
+                                                                Toggle::make('is_visible')
+                                                                    ->label('Visibility')
+                                                                    ->default(true),
+                                                            ])
+                                                            ->columns(2),
+                                                    ])
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ])
+                                    ->columnSpanFull(),
 
-                                                        self::contentBuilder('head_content', 'village-profile/ketua-dusun/content'),
-                                                    ]),
-                                            ])
-                                            ->columnSpanFull(),
-                                    ]),
-
-                                Section::make()
+                                /*
+                                |--------------------------------------------------------------------------
+                                | KETUA KARANG TARUNA
+                                |--------------------------------------------------------------------------
+                                */
+                                Group::make()
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'karang-taruna'",
                                         'x-cloak' => 'x-cloak',
                                     ])
                                     ->schema([
-                                        Tabs::make('Ketua Karang Taruna Tabs')
-                                            ->tabs([
-                                                Tab::make('Content')
-                                                    ->schema([
-                                                        Grid::make(2)
+                                        Section::make()
+                                            ->schema([
+                                                Tabs::make('Ketua Karang Taruna')
+                                                    ->tabs([
+                                                        Tab::make('Content')
                                                             ->schema([
-                                                                TextInput::make('youth_head_name')
-                                                                    ->label('Title')
-                                                                    ->placeholder('Ketua Karang Taruna'),
+                                                                Grid::make(2)
+                                                                    ->schema([
+                                                                        TextInput::make('youth_head_name')
+                                                                            ->label('Title')
+                                                                            ->placeholder('Contoh: Ketua Karang Taruna')
+                                                                            ->maxLength(255),
 
-                                                                TextInput::make('youth_slug')
-                                                                    ->label('Slug')
-                                                                    ->default('ketua-karang-taruna')
-                                                                    ->disabled()
-                                                                    ->dehydrated(false),
+                                                                        TextInput::make('youth_slug')
+                                                                            ->label('Slug')
+                                                                            ->placeholder('ketua-karang-taruna')
+                                                                            ->helperText('Isi manual. Contoh: ketua-karang-taruna')
+                                                                            ->maxLength(255),
+                                                                    ]),
+
+                                                                self::contentBuilder(
+                                                                    field: 'youth_content',
+                                                                    directory: 'village-profile/karang-taruna/content'
+                                                                ),
                                                             ]),
 
-                                                        FileUpload::make('youth_photo')
-                                                            ->label('Foto Ketua Karang Taruna')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('village-profile/karang-taruna')
-                                                            ->visibility('public')
-                                                            ->columnSpanFull(),
+                                                        Tab::make('Meta')
+                                                            ->schema([
+                                                                Toggle::make('is_visible')
+                                                                    ->label('Visibility')
+                                                                    ->default(true),
+                                                            ])
+                                                            ->columns(2),
+                                                    ])
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ])
+                                    ->columnSpanFull(),
 
-                                                        self::contentBuilder('youth_content', 'village-profile/karang-taruna/content'),
-                                                    ]),
-                                            ])
-                                            ->columnSpanFull(),
-                                    ]),
-
-                                Section::make()
+                                /*
+                                |--------------------------------------------------------------------------
+                                | PETA DUSUN
+                                |--------------------------------------------------------------------------
+                                */
+                                Group::make()
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'peta'",
                                         'x-cloak' => 'x-cloak',
                                     ])
                                     ->schema([
-                                        Tabs::make('Peta Dusun Tabs')
-                                            ->tabs([
-                                                Tab::make('Content')
-                                                    ->schema([
-                                                        Grid::make(2)
+                                        Section::make()
+                                            ->schema([
+                                                Tabs::make('Peta Dusun')
+                                                    ->tabs([
+                                                        Tab::make('Content')
                                                             ->schema([
-                                                                TextInput::make('map_title')
-                                                                    ->label('Title')
-                                                                    ->default('Peta Dusun')
-                                                                    ->disabled()
-                                                                    ->dehydrated(false),
+                                                                Grid::make(2)
+                                                                    ->schema([
+                                                                        TextInput::make('map_title')
+                                                                            ->label('Title')
+                                                                            ->placeholder('Peta Dusun')
+                                                                            ->maxLength(255),
 
-                                                                TextInput::make('map_slug')
-                                                                    ->label('Slug')
-                                                                    ->default('peta-dusun')
-                                                                    ->disabled()
-                                                                    ->dehydrated(false),
+                                                                        TextInput::make('map_slug')
+                                                                            ->label('Slug')
+                                                                            ->placeholder('peta-dusun')
+                                                                            ->helperText('Isi manual. Contoh: peta-dusun')
+                                                                            ->maxLength(255),
+                                                                    ]),
+
+                                                                FileUpload::make('map_photo')
+                                                                    ->label('Gambar Peta Dusun')
+                                                                    ->image()
+                                                                    ->disk('public')
+                                                                    ->directory('village-profile/peta')
+                                                                    ->visibility('public')
+                                                                    ->imagePreviewHeight('220')
+                                                                    ->columnSpanFull(),
+
+                                                                TextInput::make('map_link')
+                                                                    ->label('Link Google Maps')
+                                                                    ->placeholder('https://maps.app.goo.gl/...')
+                                                                    ->url()
+                                                                    ->suffixIcon('heroicon-m-map')
+                                                                    ->columnSpanFull(),
+
+                                                                self::contentBuilder(
+                                                                    field: 'map_content',
+                                                                    directory: 'village-profile/peta/content'
+                                                                ),
                                                             ]),
 
-                                                        FileUpload::make('map_photo')
-                                                            ->label('Gambar Peta Dusun')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('village-profile/peta')
-                                                            ->visibility('public')
-                                                            ->columnSpanFull(),
+                                                        Tab::make('Meta')
+                                                            ->schema([
+                                                                Toggle::make('is_visible')
+                                                                    ->label('Visibility')
+                                                                    ->default(true),
+                                                            ])
+                                                            ->columns(2),
+                                                    ])
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ])
+                                    ->columnSpanFull(),
 
-                                                        TextInput::make('map_link')
-                                                            ->label('Link Google Maps')
-                                                            ->placeholder('https://maps.app.goo.gl/...')
-                                                            ->url()
-                                                            ->suffixIcon('heroicon-m-map')
-                                                            ->columnSpanFull(),
-
-                                                        self::contentBuilder('map_content', 'village-profile/peta/content'),
-                                                    ]),
-                                            ])
-                                            ->columnSpanFull(),
-                                    ]),
-
-                                Section::make()
+                                /*
+                                |--------------------------------------------------------------------------
+                                | INFORMASI SINGKAT
+                                |--------------------------------------------------------------------------
+                                */
+                                Group::make()
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'informasi-singkat'",
                                         'x-cloak' => 'x-cloak',
                                     ])
                                     ->schema([
-                                        Tabs::make('Informasi Singkat Tabs')
-                                            ->tabs([
-                                                Tab::make('Content')
-                                                    ->schema([
-                                                        Grid::make(2)
+                                        Section::make()
+                                            ->schema([
+                                                Tabs::make('Informasi Singkat')
+                                                    ->tabs([
+                                                        Tab::make('Content')
                                                             ->schema([
-                                                                TextInput::make('village_name')
-                                                                    ->label('Nama Dusun')
-                                                                    ->placeholder('Dusun Slegrengan Kulon')
-                                                                    ->required(),
+                                                                Grid::make(1)
+                                                                    ->schema([
+                                                                        TextInput::make('village_name')
+                                                                            ->label('Nama Dusun')
+                                                                            ->placeholder('Dusun Slegrengan Kulon')
+                                                                            ->maxLength(255)
+                                                                            ->columnSpanFull(),
 
-                                                                TextInput::make('location')
-                                                                    ->label('Lokasi')
-                                                                    ->placeholder('Desa / Kecamatan / Kabupaten')
-                                                                    ->required(),
+                                                                        TextInput::make('location')
+                                                                            ->label('Lokasi')
+                                                                            ->placeholder('Desa / Kecamatan / Kabupaten')
+                                                                            ->maxLength(255)
+                                                                            ->columnSpanFull(),
 
-                                                                TextInput::make('head_name')
-                                                                    ->label('Ketua Dusun')
-                                                                    ->placeholder('Bapak Nama Ketua Dusun'),
+                                                                        TextInput::make('head_name')
+                                                                            ->label('Ketua Dusun')
+                                                                            ->placeholder('Bapak Nama Ketua Dusun')
+                                                                            ->maxLength(255)
+                                                                            ->columnSpanFull(),
 
-                                                                TextInput::make('youth_head_name')
-                                                                    ->label('Ketua Karang Taruna')
-                                                                    ->placeholder('Saudara Nama Ketua Karang Taruna'),
+                                                                        TextInput::make('youth_head_name')
+                                                                            ->label('Ketua Karang Taruna')
+                                                                            ->placeholder('Saudara Nama Ketua Karang Taruna')
+                                                                            ->maxLength(255)
+                                                                            ->columnSpanFull(),
 
-                                                                TextInput::make('contact')
-                                                                    ->label('Kontak')
-                                                                    ->placeholder('08xxxxxxxxxx'),
-
-                                                                Toggle::make('is_visible')
-                                                                    ->label('Tampilkan di Website')
-                                                                    ->default(true),
+                                                                        TextInput::make('contact')
+                                                                            ->label('Kontak')
+                                                                            ->placeholder('08xxxxxxxxxx')
+                                                                            ->tel()
+                                                                            ->suffixIcon('heroicon-m-phone')
+                                                                            ->maxLength(30)
+                                                                            ->columnSpanFull(),
+                                                                    ]),
                                                             ]),
-                                                    ]),
-                                            ])
-                                            ->columnSpanFull(),
-                                    ]),
+                                                    ])
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ])
+                                    ->columnSpanFull(),
                             ])
                             ->columnSpan([
                                 'default' => 1,
@@ -266,25 +345,6 @@ class VillageProfileForm
             ->addActionLabel('Add to content')
             ->default([])
             ->blocks([
-                Block::make('heading')
-                    ->label('Heading')
-                    ->icon('heroicon-o-bookmark')
-                    ->schema([
-                        TextInput::make('content')
-                            ->label('Content')
-                            ->required(),
-                    ]),
-
-                Block::make('paragraph')
-                    ->label('Paragraph')
-                    ->icon('heroicon-o-bars-3-bottom-left')
-                    ->schema([
-                        RichEditor::make('content')
-                            ->label('Paragraph')
-                            ->required()
-                            ->columnSpanFull(),
-                    ]),
-
                 Block::make('image')
                     ->label('Image')
                     ->icon('heroicon-o-photo')
@@ -295,12 +355,46 @@ class VillageProfileForm
                             ->disk('public')
                             ->directory($directory)
                             ->visibility('public')
+                            ->imagePreviewHeight('220')
                             ->required()
                             ->columnSpanFull(),
 
                         TextInput::make('alt')
                             ->label('Alt text')
+                            ->placeholder('Keterangan gambar')
                             ->maxLength(255)
+                            ->columnSpanFull(),
+                    ]),
+
+                Block::make('heading')
+                    ->label('Heading')
+                    ->icon('heroicon-o-bookmark')
+                    ->schema([
+                        TextInput::make('content')
+                            ->label('Content')
+                            ->required(),
+
+                        Select::make('level')
+                            ->label('Level')
+                            ->placeholder('Select an option')
+                            ->options([
+                                'h1' => 'Heading 1',
+                                'h2' => 'Heading 2',
+                                'h3' => 'Heading 3',
+                                'h4' => 'Heading 4',
+                            ])
+                            ->native(false)
+                            ->required(),
+                    ])
+                    ->columns(2),
+
+                Block::make('paragraph')
+                    ->label('Paragraph')
+                    ->icon('heroicon-o-bars-3-bottom-left')
+                    ->schema([
+                        RichEditor::make('content')
+                            ->label('Paragraph')
+                            ->required()
                             ->columnSpanFull(),
                     ]),
             ])
