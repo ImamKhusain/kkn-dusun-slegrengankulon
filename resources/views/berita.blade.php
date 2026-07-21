@@ -9,16 +9,11 @@
     <div class="absolute inset-0 bg-black/20"></div>
 
     <div class="max-w-7xl mx-auto px-6 h-full flex items-center relative z-10">
-        <div>
+        <!-- <div>
             <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-                Berita Dusun
+                Halaman Berita Dusun
             </h1>
-
-            <p class="text-green-50 text-lg max-w-2xl">
-                Informasi terbaru mengenai kegiatan, program masyarakat, pengumuman,
-                dan perkembangan Dusun Slegrengan Kulon.
-            </p>
-        </div>
+        </div> -->
     </div>
 </section>
 
@@ -51,47 +46,46 @@
             <div class="lg:col-span-2">
 
                 <!-- Filter dan Sorting -->
-                <div class="border-y py-4 mb-8 flex flex-col md:flex-row justify-between gap-4">
-                    <div class="flex flex-wrap items-center gap-3">
+                <div class="border-y py-4 mb-8">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+
+                        <!-- Filter kategori aktif -->
                         @if (!empty($categorySlug))
-                            <a href="{{ route('berita.index') }}" class="text-gray-500 hover:text-red-600 text-xl">
-                                ×
-                            </a>
+                            @php
+                                $activeCategory = $categories->firstWhere('slug', $categorySlug);
+                            @endphp
+
+                            <div class="flex flex-wrap items-center gap-3">
+                                <a
+                                    href="{{ route('berita.index', request()->except(['category', 'page'])) }}"
+                                    class="text-gray-500 hover:text-red-600 text-xl leading-none"
+                                    title="Hapus filter kategori"
+                                >
+                                    ×
+                                </a>
+
+                                <span class="px-4 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700">
+                                    {{ $activeCategory->name ?? 'Kategori Dipilih' }}
+                                </span>
+                            </div>
                         @endif
 
-                        <a
-                            href="{{ route('berita.index') }}"
-                            class="px-4 py-2 rounded-lg text-sm font-medium transition
-                            {{ empty($categorySlug) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700' }}"
-                        >
-                            Semua Berita
-                        </a>
-
-                        @foreach ($categories as $category)
+                        <!-- Sorting kanan -->
+                        <div class="flex items-center gap-6 text-sm font-medium md:ml-auto">
                             <a
-                                href="{{ route('berita.index', ['category' => $category->slug]) }}"
-                                class="px-4 py-2 rounded-lg text-sm font-medium transition
-                                {{ ($categorySlug ?? '') === $category->slug ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700' }}"
+                                href="{{ route('berita.index', array_merge(request()->except(['sort', 'page']), ['sort' => 'latest'])) }}"
+                                class="sort-tab {{ ($sort ?? 'latest') === 'latest' ? 'sort-tab-active' : 'text-gray-600 hover:text-green-700' }}"
                             >
-                                {{ $category->name }}
+                                Latest
                             </a>
-                        @endforeach
-                    </div>
 
-                    <div class="flex gap-6 text-sm font-medium">
-                        <a
-                            href="{{ route('berita.index', array_merge(request()->except('sort'), ['sort' => 'latest'])) }}"
-                            class="{{ ($sort ?? 'latest') === 'latest' ? 'text-green-700 border-b-2 border-green-700 pb-2' : 'text-gray-600 hover:text-green-700 pb-2' }}"
-                        >
-                            Latest
-                        </a>
-
-                        <a
-                            href="{{ route('berita.index', array_merge(request()->except('sort'), ['sort' => 'oldest'])) }}"
-                            class="{{ ($sort ?? '') === 'oldest' ? 'text-green-700 border-b-2 border-green-700 pb-2' : 'text-gray-600 hover:text-green-700 pb-2' }}"
-                        >
-                            Oldest
-                        </a>
+                            <a
+                                href="{{ route('berita.index', array_merge(request()->except(['sort', 'page']), ['sort' => 'oldest'])) }}"
+                                class="sort-tab {{ ($sort ?? '') === 'oldest' ? 'sort-tab-active' : 'text-gray-600 hover:text-green-700' }}"
+                            >
+                                Oldest
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -184,6 +178,7 @@
                         <h3 class="text-xl font-bold text-gray-900 mb-2">
                             Belum ada berita
                         </h3>
+
                         <p class="text-gray-600">
                             Berita akan tampil setelah admin menambahkan post dan mengaktifkan visibility.
                         </p>
@@ -209,10 +204,25 @@
                             type="text"
                             name="search"
                             value="{{ $search ?? '' }}"
-                            placeholder="search"
-                            class="w-full border rounded-xl py-3 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-green-600"
+                            placeholder="Cari berita..."
+                            class="w-full border rounded-xl py-3 px-4 pl-11 focus:outline-none focus:ring-2 focus:ring-green-600"
                         >
-                        <span class="absolute left-3 top-3 text-gray-400">🔍</span>
+
+                        <svg
+                            class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.05 6.05a7.5 7.5 0 0 0 10.6 10.6Z"
+                            />
+                        </svg>
                     </div>
                 </form>
 
@@ -222,57 +232,52 @@
                         <h3 class="font-bold text-gray-900 uppercase">
                             Recommended Topics
                         </h3>
-                        <span>⌃</span>
+
+                        <span class="text-gray-600">⌃</span>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
                         @foreach ($categories as $category)
                             <a
-                                href="{{ route('berita.index', ['category' => $category->slug]) }}"
-                                class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition"
+                                href="{{ route('berita.index', array_merge(request()->except(['category', 'page']), ['category' => $category->slug])) }}"
+                                class="px-3 py-2 rounded-lg text-sm transition
+                                {{ ($categorySlug ?? '') === $category->slug
+                                    ? 'bg-green-700 text-white'
+                                    : 'bg-green-100 text-green-700 hover:bg-green-200' }}"
                             >
                                 {{ $category->name }}
                             </a>
                         @endforeach
                     </div>
-                </div>
-
-                <!-- Category -->
-                <div class="bg-white border rounded-2xl p-5 shadow-sm">
-                    <h3 class="font-bold text-gray-900 uppercase mb-5">
-                        Category
-                    </h3>
-
-                    <div class="space-y-4">
-                        @foreach ($categories as $category)
-                            <a
-                                href="{{ route('berita.index', ['category' => $category->slug]) }}"
-                                class="h-24 rounded-xl bg-gradient-to-r from-green-700 to-green-400 flex items-center justify-center text-white font-bold hover:opacity-90 transition"
-                            >
-                                {{ $category->name }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-
-                <!-- Info Box -->
-                <div class="bg-green-700 rounded-2xl p-6 text-white">
-                    <h3 class="font-bold text-xl mb-3">
-                        Punya Kegiatan Dusun?
-                    </h3>
-
-                    <p class="text-green-50 text-sm leading-relaxed mb-5">
-                        Kegiatan masyarakat dapat dipublikasikan melalui website ini
-                        agar terdokumentasi dan dikenal oleh masyarakat luas.
-                    </p>
-
-                    <a href="/kontak" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold inline-block">
-                        Hubungi Admin
-                    </a>
                 </div>
             </aside>
         </div>
     </div>
 </section>
+
+<style>
+    .sort-tab {
+        position: relative;
+        display: inline-block;
+        line-height: 1;
+        padding-bottom: 10px;
+    }
+
+    .sort-tab-active {
+        color: #15803d;
+        font-weight: 600;
+    }
+
+    .sort-tab-active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #1f2937;
+        border-radius: 1px;
+    }
+</style>
 
 @endsection

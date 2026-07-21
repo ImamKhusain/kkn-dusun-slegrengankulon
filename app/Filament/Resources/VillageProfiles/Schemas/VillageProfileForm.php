@@ -35,14 +35,29 @@ class VillageProfileForm
                         'x-data' => "{ activeSection: 'profil' }",
                     ])
                     ->schema([
+                        /*
+                        |--------------------------------------------------------------------------
+                        | SIDEBAR MENU KIRI
+                        |--------------------------------------------------------------------------
+                        */
                         View::make('filament.components.village-profile-side-menu')
                             ->columnSpan([
                                 'default' => 1,
                                 'xl' => 3,
                             ]),
 
+                        /*
+                        |--------------------------------------------------------------------------
+                        | FORM KANAN
+                        | Dibuat absolute agar semua section muncul dari posisi atas yang sama
+                        |--------------------------------------------------------------------------
+                        */
                         Grid::make(1)
+                            ->extraAttributes([
+                                'class' => 'relative min-h-[1200px]',
+                            ])
                             ->schema([
+
                                 /*
                                 |--------------------------------------------------------------------------
                                 | PROFIL DUSUN
@@ -52,6 +67,7 @@ class VillageProfileForm
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'profil'",
                                         'x-cloak' => 'x-cloak',
+                                        'class' => 'absolute inset-x-0 top-0 w-full',
                                     ])
                                     ->schema([
                                         Section::make()
@@ -114,6 +130,7 @@ class VillageProfileForm
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'ketua-dusun'",
                                         'x-cloak' => 'x-cloak',
+                                        'class' => 'absolute inset-x-0 top-0 w-full',
                                     ])
                                     ->schema([
                                         Section::make()
@@ -135,6 +152,15 @@ class VillageProfileForm
                                                                             ->helperText('Isi manual. Contoh: ketua-dusun')
                                                                             ->maxLength(255),
                                                                     ]),
+
+                                                                FileUpload::make('head_photo')
+                                                                    ->label('Foto Ketua Dusun')
+                                                                    ->image()
+                                                                    ->disk('public')
+                                                                    ->directory('village-profile/ketua-dusun')
+                                                                    ->visibility('public')
+                                                                    ->imagePreviewHeight('220')
+                                                                    ->columnSpanFull(),
 
                                                                 self::contentBuilder(
                                                                     field: 'head_content',
@@ -164,6 +190,7 @@ class VillageProfileForm
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'karang-taruna'",
                                         'x-cloak' => 'x-cloak',
+                                        'class' => 'absolute inset-x-0 top-0 w-full',
                                     ])
                                     ->schema([
                                         Section::make()
@@ -185,6 +212,15 @@ class VillageProfileForm
                                                                             ->helperText('Isi manual. Contoh: ketua-karang-taruna')
                                                                             ->maxLength(255),
                                                                     ]),
+
+                                                                FileUpload::make('youth_photo')
+                                                                    ->label('Foto Ketua Karang Taruna')
+                                                                    ->image()
+                                                                    ->disk('public')
+                                                                    ->directory('village-profile/karang-taruna')
+                                                                    ->visibility('public')
+                                                                    ->imagePreviewHeight('220')
+                                                                    ->columnSpanFull(),
 
                                                                 self::contentBuilder(
                                                                     field: 'youth_content',
@@ -214,6 +250,7 @@ class VillageProfileForm
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'peta'",
                                         'x-cloak' => 'x-cloak',
+                                        'class' => 'absolute inset-x-0 top-0 w-full',
                                     ])
                                     ->schema([
                                         Section::make()
@@ -280,6 +317,7 @@ class VillageProfileForm
                                     ->extraAttributes([
                                         'x-show' => "activeSection === 'informasi-singkat'",
                                         'x-cloak' => 'x-cloak',
+                                        'class' => 'absolute inset-x-0 top-0 w-full',
                                     ])
                                     ->schema([
                                         Section::make()

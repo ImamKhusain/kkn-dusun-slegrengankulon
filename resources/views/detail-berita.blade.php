@@ -138,7 +138,22 @@
                         <span>
                             {{ optional($post->published_at)->diffForHumans() ?? $post->created_at->diffForHumans() }}
                         </span>
-                        <span>◷</span>
+
+                        <svg
+                            class="h-5 w-5 text-gray-400"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"
+                            />
+                        </svg>
                     </div>
                 </div>
 
@@ -265,12 +280,47 @@
 
                     <div class="flex items-center gap-5 text-gray-600">
                         <div class="flex items-center gap-2">
-                            <span>👁</span>
+                            <svg
+                                class="h-5 w-5 text-gray-500"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.8"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"
+                                />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M12 15.25a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5Z"
+                                />
+                            </svg>
+
                             <span>127</span>
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <span>♡</span>
+                            <svg
+                                class="h-5 w-5 text-gray-500"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.8"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M21 8.25c0-2.35-1.9-4.25-4.25-4.25-1.4 0-2.65.68-3.42 1.73L12 7.5l-1.33-1.77A4.24 4.24 0 0 0 7.25 4C4.9 4 3 5.9 3 8.25c0 6.25 9 11.25 9 11.25s9-5 9-11.25Z"
+                                />
+                            </svg>
+
                             <span>0</span>
                         </div>
                     </div>

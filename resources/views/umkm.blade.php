@@ -11,13 +11,8 @@
     <div class="max-w-7xl mx-auto px-6 h-full flex items-center relative z-10">
         <div>
             <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-                Marketplace UMKM
+                Marketplace UMKM 
             </h1>
-
-            <p class="text-green-50 text-lg max-w-2xl">
-                Temukan berbagai produk dan usaha lokal masyarakat Dusun Slegrengan Kulon.
-                Dukung UMKM desa agar semakin berkembang dan dikenal luas.
-            </p>
         </div>
     </div>
 </section>
@@ -37,7 +32,7 @@
         <!-- Title -->
         <div class="mb-10">
             <h2 class="text-4xl font-bold text-gray-900 mb-3">
-                Produk & Usaha Masyarakat
+                Produk & Usaha Masyarakat Dusun Slegrengan Kulon
             </h2>
 
             <p class="text-gray-600 max-w-3xl">
