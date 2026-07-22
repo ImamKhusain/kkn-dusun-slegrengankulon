@@ -119,6 +119,19 @@ class PostForm
                                                     ->schema([
                                                         RichEditor::make('content')
                                                             ->label('Paragraph')
+                                                            ->toolbarButtons([
+                                                                'bold',
+                                                                'italic',
+                                                                'underline',
+                                                                'strike',
+                                                                'link',
+                                                                'blockquote',
+                                                                'codeBlock',
+                                                                'bulletList',
+                                                                'orderedList',
+                                                                'undo',
+                                                                'redo',
+                                                            ])
                                                             ->required()
                                                             ->columnSpanFull(),
                                                     ]),

@@ -131,7 +131,7 @@
             </div>
 
             <p class="text-green-50 text-sm mt-4">
-                Peta wilayah Dusun Slegrengan Kulon
+                Peta wilayah Dusun Slegrengan Kulon (Kadus 3)
             </p>
         </div>
 

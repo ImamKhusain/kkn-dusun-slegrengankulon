@@ -37,7 +37,7 @@
     /**
      * Membuat link WhatsApp dari nomor kontak.
      * Contoh:
-     * 089669337474  -> 6289669337474
+     * 089669337474   -> 6289669337474
      * +6289669337474 -> 6289669337474
      */
     $waLink = '#';
@@ -61,9 +61,10 @@
 
     /**
      * Render content builder blocks: heading, paragraph, image.
-     * Gambar dibuat lebih kecil dan stabil agar tidak memenuhi card.
+     * Mode person dipakai untuk Ketua Dusun dan Ketua Karang Taruna
+     * supaya foto tidak terlalu besar.
      */
-    $renderBlocks = function ($blocks) use ($mediaUrl) {
+    $renderBlocks = function ($blocks, string $imageMode = 'default') use ($mediaUrl) {
         if (!is_array($blocks) || empty($blocks)) {
             return '';
         }
@@ -103,13 +104,17 @@
                 $imageUrl = $mediaUrl($data['image'] ?? ($block['image'] ?? null));
                 $alt = e($data['alt'] ?? ($block['alt'] ?? 'Gambar'));
 
+                $imageClass = $imageMode === 'person'
+                    ? 'w-full max-w-[210px] md:max-w-[240px] max-h-[300px] object-contain rounded-xl border border-gray-100 shadow-sm'
+                    : 'w-full max-w-[300px] md:max-w-[360px] max-h-[420px] object-contain rounded-xl border border-gray-100 shadow-sm';
+
                 if ($imageUrl) {
                     $html .= '
                         <figure class="my-6 flex flex-col items-center">
                             <img
                                 src="' . $imageUrl . '"
                                 alt="' . $alt . '"
-                                class="w-full max-w-[300px] md:max-w-[360px] max-h-[420px] object-contain rounded-xl border border-gray-100 shadow-sm"
+                                class="' . $imageClass . '"
                             />
                     ';
 
@@ -237,13 +242,13 @@
                                     <img
                                         src="{{ $headPhotoUrl }}"
                                         alt="Foto Ketua Dusun"
-                                        class="w-full max-w-[260px] md:max-w-[320px] max-h-[380px] object-contain rounded-xl border border-gray-100 shadow-sm"
+                                        class="w-full max-w-[210px] md:max-w-[240px] max-h-[300px] object-contain rounded-xl border border-gray-100 shadow-sm"
                                     />
                                 </div>
                             @endif
 
                             @if (is_array($profile->head_content) && count($profile->head_content) > 0)
-                                {!! $renderBlocks($profile->head_content) !!}
+                                {!! $renderBlocks($profile->head_content, 'person') !!}
                             @else
                                 <p class="text-gray-500 text-center italic">
                                     Belum ada konten ketua dusun.
@@ -268,13 +273,13 @@
                                     <img
                                         src="{{ $youthPhotoUrl }}"
                                         alt="Foto Ketua Karang Taruna"
-                                        class="w-full max-w-[260px] md:max-w-[320px] max-h-[380px] object-contain rounded-xl border border-gray-100 shadow-sm"
+                                        class="w-full max-w-[210px] md:max-w-[240px] max-h-[300px] object-contain rounded-xl border border-gray-100 shadow-sm"
                                     />
                                 </div>
                             @endif
 
                             @if (is_array($profile->youth_content) && count($profile->youth_content) > 0)
-                                {!! $renderBlocks($profile->youth_content) !!}
+                                {!! $renderBlocks($profile->youth_content, 'person') !!}
                             @else
                                 <p class="text-gray-500 text-center italic">
                                     Belum ada konten ketua karang taruna.

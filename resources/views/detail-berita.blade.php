@@ -52,7 +52,10 @@
     $thumbnailUrl = $mediaUrl($thumbnailPath);
 
     /*
-        Jika thumbnail kosong, ambil image pertama dari content sebagai gambar utama.
+    |--------------------------------------------------------------------------
+    | THUMBNAIL FALLBACK
+    |--------------------------------------------------------------------------
+    | Jika thumbnail kosong, ambil image pertama dari content sebagai gambar utama.
     */
     if (!$thumbnailUrl) {
         foreach ($contentBlocks as $block) {
@@ -72,8 +75,62 @@
     }
 
     /*
-        Supaya gambar tidak dobel:
-        Kalau thumbnail sudah ada, image pertama dari builder content akan dilewati.
+    |--------------------------------------------------------------------------
+    | NORMALISASI TAGS
+    |--------------------------------------------------------------------------
+    | Supaya tag tetap muncul meskipun tersimpan sebagai array, JSON string,
+    | comma separated string, atau collection.
+    */
+    $rawTags = $post->tags ?? [];
+    $postTags = [];
+
+    if ($rawTags instanceof \Illuminate\Support\Collection) {
+        $rawTags = $rawTags->toArray();
+    }
+
+    if (is_string($rawTags)) {
+        $decodedTags = json_decode($rawTags, true);
+
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decodedTags)) {
+            $rawTags = $decodedTags;
+        } else {
+            $rawTags = explode(',', $rawTags);
+        }
+    }
+
+    if (is_array($rawTags)) {
+        foreach ($rawTags as $tag) {
+            if ($tag instanceof \Spatie\Tags\Tag) {
+                $tag = $tag->name;
+            }
+
+            if (is_array($tag)) {
+                $tagValue = $tag['name'] ?? $tag['slug'] ?? reset($tag);
+
+                if (is_array($tagValue)) {
+                    $tagValue = reset($tagValue);
+                }
+
+                $tag = $tagValue;
+            }
+
+            $tag = trim((string) $tag);
+            $tag = ltrim($tag, '#');
+
+            if ($tag !== '') {
+                $postTags[] = $tag;
+            }
+        }
+    }
+
+    $postTags = array_values(array_unique($postTags));
+
+    /*
+    |--------------------------------------------------------------------------
+    | SKIP DUPLICATE IMAGE
+    |--------------------------------------------------------------------------
+    | Supaya gambar tidak dobel:
+    | Kalau thumbnail sudah ada, image pertama dari builder content akan dilewati.
     */
     $firstContentImageSkipped = false;
 @endphp
@@ -101,7 +158,7 @@
         </div>
 
         {{-- Header Artikel --}}
-        <div class="text-center max-w-4xl mx-auto mb-16">
+        <div class="text-center max-w-4xl mx-auto mb-12">
             <p class="uppercase tracking-wide text-gray-700 font-semibold mb-5">
                 {{ $post->category->name ?? 'BERITA DUSUN' }}
             </p>
@@ -158,7 +215,7 @@
                 </div>
 
                 {{-- Judul Artikel Body --}}
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-8">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-8 text-center">
                     {{ $post->title }}
                 </h2>
 
@@ -267,14 +324,18 @@
                 </div>
 
                 {{-- Tags dan Statistik --}}
-                <div class="border-t border-gray-200 mt-12 pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                <div class="border-t border-b border-gray-200 mt-12 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                     <div class="flex flex-wrap gap-3">
-                        @if (is_array($post->tags) && count($post->tags) > 0)
-                            @foreach ($post->tags as $tag)
+                        @if (count($postTags) > 0)
+                            @foreach ($postTags as $tag)
                                 <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-medium">
-                                    #{{ ltrim($tag, '#') }}
+                                    #{{ $tag }}
                                 </span>
                             @endforeach
+                        @else
+                            <span class="text-sm text-gray-400 italic">
+                                Belum ada tag
+                            </span>
                         @endif
                     </div>
 
