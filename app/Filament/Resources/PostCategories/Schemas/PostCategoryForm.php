@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\PostCategories\Schemas;
 
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class PostCategoryForm
 {
@@ -12,9 +14,14 @@ class PostCategoryForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                        $set('slug', Str::slug($state ?? ''));
+                    }),
                 TextInput::make('slug')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
             ]);
     }
 }

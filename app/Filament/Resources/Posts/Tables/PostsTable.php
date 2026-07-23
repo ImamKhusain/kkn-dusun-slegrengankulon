@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Posts\Tables;
 use App\Models\Post;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
@@ -63,6 +64,7 @@ class PostsTable
             ->filters([])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
 
                 Action::make('reject')
                     ->label('Reject')
