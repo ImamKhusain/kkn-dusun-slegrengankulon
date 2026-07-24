@@ -298,6 +298,8 @@
                     @php
                         $imageUrl = $mediaUrl($umkm->image);
 
+                        $description = strip_tags($umkm->description ?? '');
+
                         $waNumber = preg_replace('/[^0-9]/', '', $umkm->whatsapp_number ?? '');
 
                         if (!empty($waNumber) && \Illuminate\Support\Str::startsWith($waNumber, '0')) {
@@ -340,6 +342,12 @@
                             <h3 class="font-bold text-lg text-gray-900 line-clamp-2">
                                 {{ $umkm->business_name }}
                             </h3>
+
+                            @if (!empty($description))
+                                <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-2">
+                                    {{ \Illuminate\Support\Str::limit($description, 100) }}
+                                </p>
+                            @endif
 
                             @if (!empty($umkm->owner_name))
                                 <p class="text-sm text-gray-500 mt-1">

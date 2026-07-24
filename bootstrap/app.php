@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Halaman HTML tidak boleh di-cache → update admin langsung tampil.
+        $middleware->web(append: [
+            \App\Http\Middleware\NoCacheHtml::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
